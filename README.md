@@ -26,36 +26,37 @@ A **taggable, permission‑aware RAG application** using **Elasticsearch** for h
 ## 4) Architecture Overview
 
 ```mermaid
-flowchart LR
-  subgraph Client
-    A[Next.js App] -- Yjs --> WS[(y-websocket)]
-    A -- Prompt/Tags --> G[GraphQL/REST API]
-  end
-
-  subgraph AWS VPC (Private Subnets)
-    S[NestJS App Servers (ECS Fargate)]
-    R[ElastiCache Redis: Yjs awareness & queues]
-    K[(Kinesis/Kafka) optional]
-    P[Background Workers: ETL/Embeddings]
-  end
-
-  subgraph Storage
-    S3[(S3: raw files + snapshots)]
-    DB[(Postgres/Aurora: metadata & ACL)]
-  end
-
-  subgraph Search
-    ES[(Elastic Cloud on AWS: Elasticsearch)]
-  end
-
-  A <-- ALB/API GW --> S
-  WS <-- ALB/NLB --> S
-  S --> DB
-  S --> R
-  S --> S3
-  P --> S3
-  P --> ES
-  S --> ES
+flowchart TB
+    subgraph "Client Layer"
+        A[Next.js Frontend]
+        B[Yjs Collaborative Editor]
+    end
+    
+    subgraph "API Layer"
+        C[NestJS API Server]
+        D[GraphQL/REST Endpoints]
+        E[WebSocket Handler]
+    end
+    
+    subgraph "AWS Infrastructure"
+        F[ECS Fargate]
+        G[Application Load Balancer]
+        H[ElastiCache Redis]
+    end
+    
+    subgraph "Data Layer"
+        I[Aurora Postgres]
+        J[S3 Storage]
+        K[Elasticsearch Cloud]
+    end
+    
+    A --> G
+    B --> E
+    C --> F
+    D --> I
+    E --> H
+    F --> J
+    F --> K
 ```
 
 ### Why Subnets (AWS context)
